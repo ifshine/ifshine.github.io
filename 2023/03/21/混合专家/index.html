@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>混合专家 | MoE(Mixture of Experts)——By Liu Xin (51255903045)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="混合专家的定义：混合专家（Mixture-of-Experts，简称MoE）是包含若干专家（expert）模块和至少一个门控（gate）模块的网络结构，专家模块给出预测结果，门控模块判断每个专家的重要性。 稀疏专家模型的定义：（Sparse Expert Models）模型部分参数被划分为若干”专家”，每个专家维护不同的参数；在训练和测试阶段，由路由模块（router）将输入样本路由到特定的专家">
+<meta property="og:type" content="article">
+<meta property="og:title" content="混合专家">
+<meta property="og:url" content="http://example.com/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/index.html">
+<meta property="og:site_name" content="MoE(Mixture of Experts)——By Liu Xin (51255903045)">
+<meta property="og:description" content="混合专家的定义：混合专家（Mixture-of-Experts，简称MoE）是包含若干专家（expert）模块和至少一个门控（gate）模块的网络结构，专家模块给出预测结果，门控模块判断每个专家的重要性。 稀疏专家模型的定义：（Sparse Expert Models）模型部分参数被划分为若干”专家”，每个专家维护不同的参数；在训练和测试阶段，由路由模块（router）将输入样本路由到特定的专家">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-03-21T06:31:52.356Z">
+<meta property="article:modified_time" content="2023-03-21T06:31:12.476Z">
+<meta property="article:author" content="Liuxin_51255903045 (ifshine)">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="MoE(Mixture of Experts)——By Liu Xin (51255903045)" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">MoE(Mixture of Experts)——By Liu Xin (51255903045)</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-混合专家" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/" class="article-date">
+  <time class="dt-published" datetime="2023-03-21T06:31:52.356Z" itemprop="datePublished">2023-03-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      混合专家
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><strong>混合专家的定义</strong>：混合专家（Mixture-of-Experts，简称MoE）是包含若干专家（expert）模块和至少一个门控（gate）模块的网络结构，专家模块给出预测结果，门控模块判断每个专家的重要性。<ul>
+<li><strong>稀疏专家模型的定义</strong>：（Sparse Expert Models）模型部分参数被划分为若干”专家”，每个专家维护不同的参数；在训练和测试阶段，由路由模块（router）将输入样本路由到特定的专家（们），最终每个样本只与模型的<strong>部分参数</strong>交互。</li>
+</ul>
+</li>
+<li><strong>混合专家的发展历程</strong>：1）深度学习时代以前（1991-2012）。<a target="_blank" rel="noopener" href="https://www.cs.toronto.edu/~hinton/absps/jjnh91.pdf">1991</a>年最早提出MoE，每个专家模块是一个完整的神经网络，门控模块数量为1，MoE类似集成学习方法。<a target="_blank" rel="noopener" href="https://www.cs.toronto.edu/~hinton/absps/hme.pdf">1994</a>年提出了分层MoE（Hierarchical MoE，简称HMoE），它是树状结构，叶子结点是专家模块，非叶子结点是门控模块，HMoE是模块化思想的发展。<a target="_blank" rel="noopener" href="https://web.archive.org/web/20170830033215id_/http://www.ee.hacettepe.edu.tr/~eyuksel/Publications/2012_TwentyYearsofMixtureofExperts.pdf">2012</a>年对MoE进行综述，阐述了MoE能灵活地与各种模型结合（分类、回归等）。2）深度学习时代（2012-至今）。许多工作研究MoE在稀疏专家模型上的设计，以扩大模型规模或提高模型的可扩展性。<a target="_blank" rel="noopener" href="https://openreview.net/pdf?id=B1ckMDqlg">2017</a>年将MoE作为一个组件加入到LSTM模型中，训练出当时最大的模型，达到语言建模、机器翻译任务的SOTA。2020年的<a target="_blank" rel="noopener" href="https://openreview.net/pdf?id=qrwe7XHTmYb">Gshard</a>和2021年的<a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/volume23/21-0998/21-0998.pdf">Switch Transformer</a>将MoE组件引入到Transformer中，重新引起研究人员对MoE的兴趣；除了NLP，2021年开始MoE在CV、Speech Recognition、Multi-Modal领域都有了成功的尝试。</li>
+<li><strong>混合专家的问题场景</strong>：<ol>
+<li><strong>计算有限下扩大模型规模</strong>。现在的模型越来越大，训练样本越来越多，每个样本都需要经过模型的全部计算，这就导致了训练成本的平方级增长。MoE将大模型拆分成多个小模型（expert），对于一个样本来说，无需经过所有的小模型去计算，而只是激活一部分小模型进行计算，这样就节省了计算资源。需要注意的是，计算量虽然没有过多增加，但是模型的参数量非常大，内存占用是一个负担，有可能减少batchsize。<ol>
+<li>有许多GPU。非常适合稀疏模型。通常使用数据并行训练模型，每个GPU只用负责一部分数据(而不是全部)，省出来的资源可以托管更多模型参数。当预训练阶段使用多个GPU、微调阶段的GPU少得多，稀疏度(专家的数量)需要修改以匹配下游任务的内存限制。</li>
+<li>GPU数量少。一般情况下，稀疏模型总是比密集模型看起来更差(一般受内存限制)。不过一些巧妙合适的设计也可以让MoE发挥作用，见问题场景的第2、3点。</li>
+</ol>
+</li>
+<li><strong>可扩展性</strong>。2022的<a target="_blank" rel="noopener" href="https://aclanthology.org/2022.naacl-main.407.pdf">DEMIX</a>和<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2208.03306">BTM</a>重新审视了专家的模块化、可组合性，后面有DEMIX的详细介绍。</li>
+<li><strong>多样化生成内容</strong>。2022的<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2203.07285.pdf">MoKGE</a>在常识解释生成任务上，让每个专家选择sub KG上不同的结点，从而生成不同的常识解释。</li>
+</ol>
+</li>
+</ul>
+<h2 id="稀疏专家模型的未来方向"><a href="#稀疏专家模型的未来方向" class="headerlink" title="稀疏专家模型的未来方向"></a><strong>稀疏专家模型的</strong>未来方向</h2><ul>
+<li><strong>自适应计算（Adaptive Computation）</strong>：自适应计算的思想是，对不同的输入，模型的计算量不同（即时调整）。稀疏模型有类似的想法，每个输入使用相同的计算量，但激活的参数不同。这2个技术并不互斥。一些routing算法分配给一个token的expert数量是不同的；模型也可以自动选择需要使用的layer数量；异构expert layer（type、size）也会带来计算量的不同。未来可以继续用自适应计算促进稀疏专家模型的发展。</li>
+<li><strong>检索方法（Retrieval Methods）</strong>：检索机制可以有效扩充模型容量，它能让模型动态获取外部信息。稀疏专家模型与检索模型有一个共同目标：扩充模型容量以更好地存储、检索、运用知识，不过前者通过增加参数量来实现该目标。研究这2个技术的结合很可能是个有潜力的方向。</li>
+<li><strong>Many Open Questions Remain</strong>：<ul>
+<li>对专家的最佳<strong>数量和规模</strong>如何取决于任务仍然知之甚少</li>
+<li>实现强大的<strong>领域外泛化</strong>并不那么简单，需要更好的解释</li>
+<li>大多数稀疏专家模型的<strong>结构多样性</strong>相对较低</li>
+<li>仍然必须确定合适的<strong>稀疏粒度</strong>：大多数工作都集中在专家替换组件（如前馈网络层），不过DEMIX和BTM发现了更完全模块化的独立专家的好处</li>
+<li>有关稀疏专家模型的一些特性还未被理解：记忆能力，异步训练下的表现，etc.</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/" data-id="clg00fj6900050stk4tgy5jmt" data-title="混合专家" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/04/03/%E6%80%BB%E7%BB%93/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          总结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/03/21/Gshard/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Gshard</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/04/03/%E6%80%BB%E7%BB%93/">总结</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/">混合专家</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Gshard/">Gshard</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Switch%20Transformer/">Switch Transformer</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/DEMIX/">DEMIX</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 Liuxin_51255903045 (ifshine)<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

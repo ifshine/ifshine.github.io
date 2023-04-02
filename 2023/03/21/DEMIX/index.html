@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>DEMIX | MoE(Mixture of Experts)——By Liu Xin (51255903045)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Author: Meta, 华盛顿大学Contribution: 专家的模块化、可组合性[Venue] Year: NAACL 2022 DEMIX Layers: Disentangling Domains for Modular Language Modeling  https:&#x2F;&#x2F;github.com&#x2F;kernelmachine&#x2F;demix  在routing上与Gshard比较 Gshar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DEMIX">
+<meta property="og:url" content="http://example.com/2023/03/21/DEMIX/index.html">
+<meta property="og:site_name" content="MoE(Mixture of Experts)——By Liu Xin (51255903045)">
+<meta property="og:description" content="Author: Meta, 华盛顿大学Contribution: 专家的模块化、可组合性[Venue] Year: NAACL 2022 DEMIX Layers: Disentangling Domains for Modular Language Modeling  https:&#x2F;&#x2F;github.com&#x2F;kernelmachine&#x2F;demix  在routing上与Gshard比较 Gshar">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-03-21T06:27:15.623Z">
+<meta property="article:modified_time" content="2023-03-21T06:26:55.983Z">
+<meta property="article:author" content="Liuxin_51255903045 (ifshine)">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="MoE(Mixture of Experts)——By Liu Xin (51255903045)" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">MoE(Mixture of Experts)——By Liu Xin (51255903045)</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-DEMIX" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/03/21/DEMIX/" class="article-date">
+  <time class="dt-published" datetime="2023-03-21T06:27:15.623Z" itemprop="datePublished">2023-03-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      DEMIX
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Author: Meta, 华盛顿大学<br>Contribution: 专家的模块化、可组合性<br>[Venue] Year: NAACL 2022</p>
+<p>DEMIX Layers: Disentangling Domains for Modular Language Modeling</p>
+<p><a target="_blank" rel="noopener" href="https://aclanthology.org/2022.naacl-main.407.pdf"></a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/kernelmachine/demix">https://github.com/kernelmachine/demix</a></p>
+<ul>
+<li>在routing上与Gshard比较<ul>
+<li>Gshard解决的问题是，扩展模型规模面临高昂的训练代价；而模块化任务不需要面临该问题</li>
+<li>Gshard缺乏模块化，暗示它在下游任务上面临与密集模型相似的问题<ul>
+<li>在adaptation的过程中，遗忘已学习到的知识，缺乏轻量级的控制</li>
+</ul>
+</li>
+<li>DEMIX尽管在模型规模上远小于Gshard，但它尤其在分布外的表现要优于Gshard。这暗示在提高模型泛化能力的过程中，除了扩大模型规模，领域模块化也是一个代替解决方案</li>
+</ul>
+</li>
+<li>DEMIX experts are related to <strong>adapters</strong> (Bapna and Firat, 2019), which <strong>add a small feedforward network into a frozen pretrained LM to enable parameter efficient finetuning</strong>. In contrast, our focus is on efficiently training all of the parameters of a modular LM from scratch, and as such is not directly comparable to existing adapter schemes. Adapters could enable more fine-grained control over which parts of the LM are domain-specific, and may circumvent the need to train domain-aware LMs from scratch. However, the shared parameters in the frozen pretrained LM may limit modularity. We leave exploring such architectural variants and their tradeoffs to future work.</li>
+<li>每个专家专注于一个领域，让语言模型变得模块化，在推理阶段<ol>
+<li><strong>mixing</strong> experts采用无参数的加权集成，有助泛化到<strong>异构领域、新领域</strong>(训练阶段未看到)。如COVID-19 papers</li>
+<li>可以<strong>添加</strong>expert: 以适应新领域；不会遗忘原有的expert。如Github code<ul>
+<li>DEMIX-DAPT—cheap adaptation without forgetting</li>
+<li>initialize a new expert in each DEMIX layer using the parameters of the nearest pretrained expert(根据前面提到的，参数无关的、计算出来的gate值)</li>
+</ul>
+</li>
+<li>可以<strong>删除</strong>expert: 对不想涉及的领域，切断对它的访问。如social media</li>
+</ol>
+</li>
+<li>关于数据标记<ul>
+<li>在训练阶段为每个样本<strong>做domain标记</strong>，每个expert负责一个domain，显式路由</li>
+<li>在测试阶段，每个样本<strong>没有domain标记</strong>，模型计算每个expert的gate值<ul>
+<li>mix expert</li>
+<li>参数无关; 仅根据输入token来计算</li>
+<li>而Gshard中，需要学习含参数的权重矩阵，来计算这些gate值</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>未来工作：Future work may combine domain and token-level routing, discover domains automatically with <strong>unsupervised learning</strong>, or scale the number of training domains.</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/03/21/DEMIX/" data-id="clg00fj6500010stk1l7p5a12" data-title="DEMIX" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/03/21/Switch%20Transformer/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Switch Transformer
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/04/03/%E6%80%BB%E7%BB%93/">总结</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/">混合专家</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Gshard/">Gshard</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Switch%20Transformer/">Switch Transformer</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/DEMIX/">DEMIX</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 Liuxin_51255903045 (ifshine)<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

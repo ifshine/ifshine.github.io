@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Switch Transformer | MoE(Mixture of Experts)——By Liu Xin (51255903045)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Author: GoogleContribution: k&#x3D;1[Venue] Year: JMLR 2022  SwitchTransformers transformers&#x2F;src&#x2F;transformers&#x2F;models&#x2F;switch_transformers at 67d074874d285e616393c65a0e670088e1b6b74a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Switch Transformer">
+<meta property="og:url" content="http://example.com/2023/03/21/Switch%20Transformer/index.html">
+<meta property="og:site_name" content="MoE(Mixture of Experts)——By Liu Xin (51255903045)">
+<meta property="og:description" content="Author: GoogleContribution: k&#x3D;1[Venue] Year: JMLR 2022  SwitchTransformers transformers&#x2F;src&#x2F;transformers&#x2F;models&#x2F;switch_transformers at 67d074874d285e616393c65a0e670088e1b6b74a">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-03-21T06:28:53.616Z">
+<meta property="article:modified_time" content="2023-03-21T06:28:25.950Z">
+<meta property="article:author" content="Liuxin_51255903045 (ifshine)">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="MoE(Mixture of Experts)——By Liu Xin (51255903045)" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">MoE(Mixture of Experts)——By Liu Xin (51255903045)</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Switch Transformer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/03/21/Switch%20Transformer/" class="article-date">
+  <time class="dt-published" datetime="2023-03-21T06:28:53.616Z" itemprop="datePublished">2023-03-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Switch Transformer
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Author: Google<br>Contribution: k&#x3D;1<br>[Venue] Year: JMLR 2022</p>
+<p><a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/volume23/21-0998/21-0998.pdf"></a></p>
+<p><a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/model_doc/switch_transformers">SwitchTransformers</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/huggingface/transformers/tree/67d074874d285e616393c65a0e670088e1b6b74a/src/transformers/models/switch_transformers">transformers&#x2F;src&#x2F;transformers&#x2F;models&#x2F;switch_transformers at 67d074874d285e616393c65a0e670088e1b6b74a · huggingface&#x2F;transformers</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/labmlai/annotated_deep_learning_paper_implementations/blob/master/labml_nn/transformers/switch/__init__.py">annotated_deep_learning_paper_implementations&#x2F;<strong>init</strong>.py at master · labmlai&#x2F;annotated_deep_learning_paper_implementations</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344702054">NLP炼丹笔记：Switch Transformers 朴实无华 大招秒杀</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363702998">动态路由条件计算-万亿级参数超大模型关键技术与MindSpore支持（1）</a></p>
+<ol>
+<li>Switch Transformer虽然有1.6万亿参数，但通过<strong>Sparse routing</strong>的改进，每轮迭代只会触发部分Expert的计算，而每个token也只会路由给一个Expert，所以对算力的需求并没有随着参数量的增加而大幅增长，使得这个模型更加容易训练(缓解不稳定性)</li>
+<li>数据并行、模型并行、Expert并行的并行策略设计，在MoE网络结构上能够获得更低的通信开销，提高并行的效率</li>
+</ol>
+<ul>
+<li>this work advocates training large models on <strong>relatively small amounts of data</strong> as the computationally optimal approach</li>
+<li>Our work here focuses on TPU architectures, but these class of models may be similarly trained on GPU clusters</li>
+<li>每个设备上的权重不同，因而模型权重数量随着设备数量的增加而增加</li>
+<li>2017年提出的Mixture of Expert Routing: 在N个expert中选择前k个(2017认为k&gt;1比较好)<ul>
+<li>路由器维护一个可学习的矩阵$W_r$, 先计算logits $h(x)&#x3D;W_r·x$，然后再计算softmax分布，第i个expert分配到的gate值为$p_i(x)&#x3D;\frac{e^{h(x)_i}}{\sum_j^Ne^{h(x)_j}}$(gate值能反映路由器的鉴别能力)</li>
+<li>令$\mathcal T$是选出来的k个expert的下标集合，每个expert的计算结果为$E_i(x)$, 则模型最终输出这k个expert计算结果的线性加权和，$y&#x3D;\sum\limits_{i\in\mathcal T}p_i(x)E_i(x)$</li>
+</ul>
+</li>
+<li>Switch transformer设置k&#x3D;1，有3个好处：<ol>
+<li>减少计算量</li>
+<li>减少batch size(expert capacity), 因为每个expert处理的token数量减少(至少减少了一半)</li>
+<li>路由算法的实现被简化，通信代价减少(见下图)</li>
+</ol>
+</li>
+</ul>
+<p>红线对应的token不会被当前层处理(溢出)。较低比率的溢出不会影响模型的性能。expert capacity—the number of tokens each expert computes。capacity factor需要权衡溢出比率和计算代价。capacity factor是一个超参？</p>
+<ul>
+<li>2017 separates load-blancing and importance-weighting losses</li>
+<li>Switch Transformer 使用 <strong>Differentiable Load Balancing Loss</strong><ul>
+<li>For each Switch layer, this auxiliary loss is added to the total model loss during training.</li>
+<li>Given N experts and a batch $\mathcal B$ with $T$ tokens, the loss is computed as the scaled dot-product between $f$ and $P$<ul>
+<li>$loss &#x3D; \alpha ·N\sum\limits_{i&#x3D;1}^Nf_i·P_i$</li>
+<li>We swept hyper-parameter ranges of α from 10−1 to 10−5 in powers of 10 and found 10−2 <strong>balanced load quickly</strong> without interfering with training loss</li>
+<li>$f_i&#x3D;\frac{1}{T}\sum\limits_{x\in\mathcal B}1\left{\mathrm{argmax}\space p(x)&#x3D;i\right}$, 分配到第i个expert的token数量与总token数量(T)的比值</li>
+<li>$P_i&#x3D;\frac{1}{T}\sum\limits_{x\in\mathcal B}p_i(x)$, 第i个expert的gate值的平均(每个token对应一个gate值，共T个gate值)</li>
+</ul>
+</li>
+<li>该loss能鼓励uniform routing：尽量让每个expert都分配到差不多数量的token</li>
+</ul>
+</li>
+<li>随意增加expert的数量有可能让模型效果变差</li>
+</ul>
+<ol>
+<li>数据并行：n&#x3D;N, m&#x3D;1<ol>
+<li>优点：在整个前向、反向传播结束前，没有通信开销；在所有前向、反向传播结束后，需要将不同core上的模型梯度进行聚合</li>
+</ol>
+</li>
+<li>模型并行：n&#x3D;1, m&#x3D;N<ol>
+<li>通信开销大(每轮计算完前向、反向传播后，需要聚合梯度)</li>
+<li>Each core sends a tensor of $[B, d_{model}]$</li>
+</ol>
+</li>
+<li>模型和数据并行：In the forward and backward pass each core communicates a tensor of size $[\frac{B}{n}, d_{model}]$ in an all-reduce operation</li>
+<li>专家和数据并行：For each token per core a router locally computes assignments to the experts</li>
+<li>专家、模型和数据并行：</li>
+</ol>
+<ul>
+<li>训练稳定性<ul>
+<li>countered instabilities in the highest-compute Switch-XXL model</li>
+<li>采取的解决办法：推荐使用尺寸更小的权重初始化，将路由网络的部分参数设置为更高的精度</li>
+</ul>
+</li>
+<li>Future Work<ol>
+<li>最大模型的训练稳定性需要进一步提高(正则化器&#x2F;梯度裁剪变体)</li>
+<li>微调质量、FLOPS per token、参数数量，这3者间的依赖目前还没有很好的认识</li>
+<li>对scaling relationship还需进行一个全面研究，以对融合数据、模型、专家平行的架构设计进行指导</li>
+<li>本文的工作包含在自适应计算范畴，使用的是同构的expert，在未来可以设计异构expert</li>
+<li>探索除了Transformer FFN层以外的其他layer，作为expert layer。</li>
+<li>将Switch Transformer从NLP领域扩展到多模态领域</li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/03/21/Switch%20Transformer/" data-id="clg00fj6800030stk6x5sc1jt" data-title="Switch Transformer" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/03/21/Gshard/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Gshard
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/03/21/DEMIX/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">DEMIX</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/04/03/%E6%80%BB%E7%BB%93/">总结</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6/">混合专家</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Gshard/">Gshard</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/Switch%20Transformer/">Switch Transformer</a>
+          </li>
+        
+          <li>
+            <a href="/2023/03/21/DEMIX/">DEMIX</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 Liuxin_51255903045 (ifshine)<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
